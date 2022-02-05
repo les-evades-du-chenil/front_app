@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:front_les_evades/data/source/grpc_server/grpc_server_data_source.dart';
+import 'package:front_les_evades/data/source/grpc_server/model/hello.pbgrpc.dart';
 
 import 'widgets/card_with_image.dart';
 
@@ -13,10 +15,17 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _counter = 0;
-
+  String text = '';
+  final GrpcServerDataSource datasource = GrpcServerDataSource();
   void _incrementCounter() {
     setState(() {
       _counter++;
+    });
+  }
+
+  void _setText(String newText) {
+    setState(() {
+      text = newText;
     });
   }
 
@@ -30,9 +39,7 @@ class _HomeState extends State<Home> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+            Text(text),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
@@ -42,7 +49,12 @@ class _HomeState extends State<Home> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () async {
+          _incrementCounter();
+          HelloReply res = await datasource.sendNameToHelloService('cho7');
+          text = res.message;
+          _setText(text);
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
